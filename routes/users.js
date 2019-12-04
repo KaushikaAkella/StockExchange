@@ -8,28 +8,40 @@ router.get('/', function(req, res, next) {
 
 router.post('/stocks',(req,res,next) =>{
 	console.log("----------here------------")
-	const {current_date} = req.body;
+	// const {current_date} = req.body;
+	var current_date = new Date();
 	const fs = require('fs');
 	let rawdata_today = fs.readFileSync('static/stockdata_today.json');
 	let stockObj_today = JSON.parse(rawdata_today);
 	// console.log(stockObj_today);
 	console.log(current_date);
-	output = {};
+	output = [];
 	for(var x in stockObj_today)
 	{
-		output[x] = {};
+		stock = [];
 		console.log(stockObj_today[x]["stock_name"]);
-		output[x]["stock_name"] = stockObj_today[x]["stock_name"];
+		
+		stock.push(x);
+		stock.push(stockObj_today[x]["stock_name"]);
+		
 		for(var y in stockObj_today[x]["stock_price"]){
-			var time = current_date.getHours()+":"+current_date.getMinutes();
+			var hours = current_date.getHours();
+			var min = current_date.getMinutes();
+			if(min.length == 1){
+				min = "0"+min;
+			}
+			if(hours.length == 1){
+				hours = "0"+hours;
+			}
+			var time = hours+":"+min;
 			console.log(time);
 			if(y == time)
 			{
-				console
-				output[x]["stock_price"] = {}
-				output[x]["stock_price"] = stockObj_today[x]["stock_price"][y];
+				stock.push(stockObj_today[x]["stock_price"][y]);
 			}
 		}
+
+		output.push(stock);
 	}
 	console.log(output);
 	res.send({output: output});
@@ -64,6 +76,10 @@ console.log(stockObj_today);
 							var m = x.split(":")[1];
 							if(h == curr_h && m == curr_m)
 							{
+
+							}
+							else
+							{
 								labels.push(x+" "+currentDate);
                                 data.push(stockObj[key]["stock_price"][x]);
 							}
@@ -71,7 +87,9 @@ console.log(stockObj_today);
 					}
 				}
 			}
-            for (var key in stockObj)
+			else
+			{
+				for (var key in stockObj)
             {
                 if (stockObj.hasOwnProperty(key) && ticker_symbol == key){
                     if(time_period == "Past 5 Years")
@@ -183,6 +201,8 @@ console.log(stockObj_today);
 					
                 }
             }
+			}
+            
             console.log(data);
             console.log(labels);
 
